@@ -1,2 +1,46 @@
 ---
-# tasks file for users
+ - name: Create group
+   group:
+     name: "{{ item }}"
+     guid: "{{ item.guid | default(omit) }}"
+     state: "{{ item.state | default('present') }}"
+     system: "{{ item.system | default(False) }}"
+   with_items: "{{ management_groups }}"
+
+ - name: Create Normal User
+   user:
+     name: "{{ item.name }}"
+     uid: "{{ item.uid| default(omit) }}"
+     password: "{{ item.password| default('!!') }}"
+     comment: "{{ item.full_name | default('') }}"
+     createhome: "{{ item.createhome | default('yes') }}"
+     group: "{{ item.group | default(omit) }}"
+     groups: "{{ item.groups | default('') | join(',') }}"
+     shell: "{{ item.shell | default('/bin/bash') }}"
+     append: "{{ item.append | default('no') }}"
+     state: "{{ item.state | default('present') }}"
+   with_items: "{{ management_active_users }}"
+   when: management_active_users is defined
+
+ - name: Setup authorized key
+   authorized_key:
+     user: "{{ item }}"
+     key: "{{ lookup('file', '/home/daniel_lin/ssh_keys/'  ~ management_active_users[item].public_key ) }}"
+   with_items: "{{ management_active_users }}"
+   when: management_active_users[item].public_key is defined
+
+ - name: Remove active user authorized key
+   authorized_key:
+     user: "{{ item }}"
+     key: "{{ lookup('file', '/home/daniel_lin/ssh_keys/'  ~ management_active_users[item].remove_public_key ) }}"
+     state: absent
+   with_items: "{{ management_active_users }}"
+   when: management_active_users[item].remove_public_key is defined
+
+ - name: Remove Normal User
+   user:
+     name: "{{ item }}"
+     remove: "{{ item.remove | default('yes') }}"
+     state: "{{ item.state | default('absent') }}"
+   with_items: "{{ management_remove_users }}"
+   when: management_remove_users is defined

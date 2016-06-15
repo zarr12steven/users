@@ -1,2 +1,4 @@
 ---
-# defaults file for users
+management_groups: []
+management_active_users: []
+management_remove_users: []
