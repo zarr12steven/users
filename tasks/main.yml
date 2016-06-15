@@ -25,7 +25,7 @@
  - name: Setup authorized key
    authorized_key:
      user: "{{ item }}"
-     key: "{{ lookup('file', '/home/daniel_lin/ssh_keys/'  ~ management_active_users[item].public_key ) }}"
+     key: "{{ lookup('file', '/path/to/repo'  ~ management_active_users[item].public_key ) }}"
    with_items: "{{ management_active_users }}"
    when: management_active_users[item].public_key is defined
 
