@@ -1,11 +1,12 @@
 ---
- - name: Create group
+ - name: Management System Group
    group:
-     name: "{{ item }}"
-     guid: "{{ item.guid | default(omit) }}"
+     name: "{{ item.name }}"
+     gid: "{{ item.gid | default(omit) }}"
      state: "{{ item.state | default('present') }}"
-     system: "{{ item.system | default(False) }}"
-   with_items: "{{ management_groups }}"
+     system: "{{ item.system | default('no') }}"
+   with_items: "{{  management_groups }}"
+   when: management_groups is defined
 
  - name: Create Normal User
    user:
@@ -22,17 +23,17 @@
    with_items: "{{ management_active_users }}"
    when: management_active_users is defined
 
- - name: Setup active user authorized key
+ - name: Setup Active User Authorized Key
    authorized_key:
      user: "{{ item }}"
-     key: "{{ lookup('file', management_ssh_keys_path ~ management_active_users[item].public_key ) }}"
+     key: "{{ lookup('file', management_ssh_keys_path  ~ management_active_users[item].public_key ) }}"
    with_items: "{{ management_active_users }}"
    when: management_active_users[item].public_key is defined
 
- - name: Remove active user authorized key
+ - name: Remove Active User Authorized Key
    authorized_key:
      user: "{{ item }}"
-     key: "{{ lookup('file', management_ssh_keys_path ~ management_active_users[item].remove_public_key ) }}"
+     key: "{{ lookup('file', management_ssh_keys_path  ~ management_active_users[item].remove_public_key ) }}"
      state: absent
    with_items: "{{ management_active_users }}"
    when: management_active_users[item].remove_public_key is defined
