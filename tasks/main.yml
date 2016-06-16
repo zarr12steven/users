@@ -22,17 +22,17 @@
    with_items: "{{ management_active_users }}"
    when: management_active_users is defined
 
- - name: Setup authorized key
+ - name: Setup active user authorized key
    authorized_key:
      user: "{{ item }}"
-     key: "{{ lookup('file', 'public_key_path' ~ management_active_users[item].public_key ) }}"
+     key: "{{ lookup('file', management_ssh_keys_path ~ management_active_users[item].public_key ) }}"
    with_items: "{{ management_active_users }}"
    when: management_active_users[item].public_key is defined
 
  - name: Remove active user authorized key
    authorized_key:
      user: "{{ item }}"
-     key: "{{ lookup('file', 'publice_key_path' ~ management_active_users[item].remove_public_key ) }}"
+     key: "{{ lookup('file', management_ssh_keys_path ~ management_active_users[item].remove_public_key ) }}"
      state: absent
    with_items: "{{ management_active_users }}"
    when: management_active_users[item].remove_public_key is defined

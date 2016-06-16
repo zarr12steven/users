@@ -1,4 +1,5 @@
 ---
+management_ssh_keys_path: "{{ playbook_dir }}/ssh_keys/"
 management_groups: []
 management_active_users: []
 management_remove_users: []
