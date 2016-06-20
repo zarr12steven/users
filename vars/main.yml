@@ -1,2 +1,4 @@
 ---
 # vars file for users
+username: deploy
+user_passwd: deploy_password

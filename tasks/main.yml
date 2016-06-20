@@ -5,14 +5,13 @@
      gid: "{{ item.gid | default(omit) }}"
      state: "{{ item.state | default('present') }}"
      system: "{{ item.system | default('no') }}"
-   with_items: "{{  management_groups }}"
+   with_items: "{{ management_groups }}"
    when: management_groups is defined
 
- - name: Create Normal User
+ - name: Create Active User
    user:
      name: "{{ item }}"
      uid: "{{ management_active_users[item].uid | default(omit) }}"
-     password: "{{ management_active_users[item].password | default('!!') }}"
      comment: "{{ management_active_users[item].full_name | default('') }}"
      createhome: "{{ management_active_users[item].createhome | default('yes') }}"
      group: "{{ management_active_users[item].group | default(omit) }}"
@@ -22,6 +21,22 @@
      state: "{{ management_active_users[item].state | default('present') }}"
    with_items: "{{ management_active_users }}"
    when: management_active_users is defined
+
+ - name: Setup Active User Password
+   user:
+     name: "{{ item }}"
+     password: "{{ user_passwd | password_hash('sha512') }}"
+   with_items: "{{ management_active_users }}"
+   when: management_active_users[item].password is defined
+
+ - name: Lock Active User
+   user:
+     name: "{{ item }}"
+     password: "{{ item.lock_account | default('!') }}"
+   with_items: "{{ management_active_users }}"
+   when: >
+     management_active_users[item].lock_account is defined and
+     management_active_users[item].lock_account == true
 
  - name: Setup Active User Authorized Key
    authorized_key:
